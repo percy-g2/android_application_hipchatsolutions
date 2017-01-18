@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Hipchatsolutions</string>
+    <string name="enter_your_text_here">   Enter Your Text Here</string>
+    <string name="convert_your_text">Convert Your Text</string>
 </resources>
