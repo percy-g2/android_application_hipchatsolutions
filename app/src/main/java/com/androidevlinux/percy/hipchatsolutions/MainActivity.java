@@ -5,19 +5,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Document;
-
-import java.net.JarURLConnection;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -89,10 +82,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 
                         textView.setText(jsonObject.toString());
-                        throw new RuntimeException("This is a crash");
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+
+                    } catch (Exception e) {
+                        Crashlytics.logException(new RuntimeException(e.getMessage()));
                     }
                 break;
                 default:
