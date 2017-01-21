@@ -77,11 +77,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     ArrayList<String> mentionlist   = new ArrayList<String>();
                     ArrayList<String> emoticonslist = new ArrayList<String>();
                     ArrayList<String> urllist       = new ArrayList<String>();
+                    ArrayList<String> titlelist     = new ArrayList<String>();
 
                     Matcher mentionmatcher   = Pattern.compile("@\\s*(\\w+)").matcher(yourString);
                     Matcher emoticonsmatcher = Pattern.compile("\\((.*?)\\)").matcher(yourString);
                     Matcher urlsmatcher      = Pattern.compile("\\b(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]").matcher(yourString);
-
 
                     while (mentionmatcher.find()) {
                         mentionlist.add(mentionmatcher.group().substring(1));
@@ -91,20 +91,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     while (urlsmatcher.find()) {
                         urllist.add(urlsmatcher.group());
-                        System.out.println(urlsmatcher.group());
-                        Log.d("Test",TitleExtractor.getPageTitle(urlsmatcher.group()));
+                        titlelist.add(TitleExtractor.getPageTitle(urlsmatcher.group()));
                     }
 
                     jsonObject.put("mentions", mentionlist);
                     jsonObject.put("emoticons", emoticonslist);
-                    JSONObject xyz = new JSONObject();
-                    xyz.put("url", urllist);
 
-                    jsonObject.put("links", xyz);
+                    jsonObject.put("url", urllist);
+                    jsonObject.put("title",titlelist);
+
                     System.out.println(jsonObject.toString());
-                    System.out.println(jsonObject.get("mentions"));
-                    System.out.println(jsonObject.get("emoticons"));
-                    System.out.println(jsonObject.get("links"));
 
                     InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
                     imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
