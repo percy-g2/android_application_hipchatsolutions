@@ -6,22 +6,14 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,8 +24,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     EditText editText;
     TextView textView;
-    MyAsyncTask myAsyncTask;
-    String yourString;
+    ExecuteConvertingStrings executeConvertingStrings;
+    String strConvert;
     JSONObject jsonObject;
 
     @Override
@@ -54,16 +46,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
                 case R.id.button:
-
-                    myAsyncTask = new MyAsyncTask();
-                    myAsyncTask.execute();
+                    if (!editText.getText().toString().isEmpty()) {
+                        executeConvertingStrings = new ExecuteConvertingStrings();
+                        executeConvertingStrings.execute();
+                    } else {
+                        editText.setError("Enter Some Text");
+                    }
                 break;
                 default:
                 break;
         }
     }
 
-    class MyAsyncTask extends AsyncTask<Void, Integer, Void> {
+    class ExecuteConvertingStrings extends AsyncTask<Void, Integer, Void> {
 
         boolean running;
         ProgressDialog progressDialog;
@@ -73,15 +68,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             jsonObject = new JSONObject();
             try {
-                if (yourString!=null&& !yourString.isEmpty()) {
-                    ArrayList<String> mentionlist   = new ArrayList<String>();
+                if (strConvert!=null) {
+                    ArrayList<String> mentionlist = new ArrayList<String>();
                     ArrayList<String> emoticonslist = new ArrayList<String>();
-                    ArrayList<String> urllist       = new ArrayList<String>();
-                    ArrayList<String> titlelist     = new ArrayList<String>();
+                    ArrayList<String> urllist = new ArrayList<String>();
+                    ArrayList<String> titlelist = new ArrayList<String>();
 
-                    Matcher mentionmatcher   = Pattern.compile("@\\s*(\\w+)").matcher(yourString);
-                    Matcher emoticonsmatcher = Pattern.compile("\\((.*?)\\)").matcher(yourString);
-                    Matcher urlsmatcher      = Pattern.compile("\\b(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]").matcher(yourString);
+                    Matcher mentionmatcher = Pattern.compile("@\\s*(\\w+)").matcher(strConvert);
+                    Matcher emoticonsmatcher = Pattern.compile("\\((.*?)\\)").matcher(strConvert);
+                    Matcher urlsmatcher = Pattern.compile("\\b(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]").matcher(strConvert);
 
                     while (mentionmatcher.find()) {
                         mentionlist.add(mentionmatcher.group().substring(1));
@@ -94,19 +89,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         titlelist.add(TitleExtractor.getPageTitle(urlsmatcher.group()));
                     }
 
+                    JSONObject URL = new JSONObject();
+                    JSONObject TITLE = new JSONObject();
                     jsonObject.put("mentions", mentionlist);
                     jsonObject.put("emoticons", emoticonslist);
+                    URL.put("url", urllist);
+                    TITLE.put("title", titlelist);
+                    JSONArray linksjsonArray = new JSONArray();
 
-                    jsonObject.put("url", urllist);
-                    jsonObject.put("title",titlelist);
-
+                    linksjsonArray.put(URL);
+                    linksjsonArray.put(TITLE);
+                    jsonObject.put("links", linksjsonArray);
                     System.out.println(jsonObject.toString());
 
                     InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
                     imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                 }
             } catch (Exception e) {
-                Log.d("Test",e.getMessage());
                 Crashlytics.logException(new RuntimeException(e.getMessage()));
             }
 
@@ -124,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             super.onPreExecute();
 
             running = true;
-            yourString = editText.getText().toString();
+            strConvert = editText.getText().toString();
             progressDialog = ProgressDialog.show(MainActivity.this,
                     "Converting String",
                     "Wait!");
@@ -145,6 +144,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             textView.setText(jsonObject.toString());
             progressDialog.dismiss();
         }
-
     }
+
 }
