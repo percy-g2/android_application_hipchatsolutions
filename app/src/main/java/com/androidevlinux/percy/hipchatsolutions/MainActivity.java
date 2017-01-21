@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -13,6 +14,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
                 case R.id.button:
+
                     myAsyncTask = new MyAsyncTask();
                     myAsyncTask.execute();
                 break;
@@ -60,17 +70,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         protected Void doInBackground(Void... params) {
+
             jsonObject = new JSONObject();
             try {
                 if (yourString!=null&& !yourString.isEmpty()) {
-                    ArrayList<String> mentionlist = new ArrayList<String>();
+                    ArrayList<String> mentionlist   = new ArrayList<String>();
                     ArrayList<String> emoticonslist = new ArrayList<String>();
-                    ArrayList<String> urllist = new ArrayList<String>();
+                    ArrayList<String> urllist       = new ArrayList<String>();
 
-                    Matcher mentionmatcher = Pattern.compile("@\\s*(\\w+)").matcher(yourString);
+                    Matcher mentionmatcher   = Pattern.compile("@\\s*(\\w+)").matcher(yourString);
                     Matcher emoticonsmatcher = Pattern.compile("\\((.*?)\\)").matcher(yourString);
-                    String regex = "\\b(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
-                    Matcher urlsmatcher = Pattern.compile(regex).matcher(yourString);
+                    Matcher urlsmatcher      = Pattern.compile("\\b(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]").matcher(yourString);
 
 
                     while (mentionmatcher.find()) {
@@ -82,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     while (urlsmatcher.find()) {
                         urllist.add(urlsmatcher.group());
                         System.out.println(urlsmatcher.group());
+                        Log.d("Test",TitleExtractor.getPageTitle(urlsmatcher.group()));
                     }
 
                     jsonObject.put("mentions", mentionlist);
@@ -97,10 +108,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
                     imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-
-
                 }
             } catch (Exception e) {
+                Log.d("Test",e.getMessage());
                 Crashlytics.logException(new RuntimeException(e.getMessage()));
             }
 
@@ -116,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+
             running = true;
             yourString = editText.getText().toString();
             progressDialog = ProgressDialog.show(MainActivity.this,
