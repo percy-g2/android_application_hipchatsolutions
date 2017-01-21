@@ -82,8 +82,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         mentionlist.add(mentionmatcher.group().substring(1));
                     }
                     while (emoticonsmatcher.find()) {
-                        if (emoticonsmatcher.group().substring(1, emoticonsmatcher.group().length() - 1).replaceAll("[^\\w]", "").length() <=15 ) {
-                            emoticonslist.add(emoticonsmatcher.group().substring(1, emoticonsmatcher.group().length() - 1).replaceAll("[^\\w]", ""));
+                        if (emoticonsmatcher.group().substring(1, emoticonsmatcher.group().length() - 1).replaceAll("\\d+.*", "").length() <=15 ) {
+                            emoticonslist.add(emoticonsmatcher.group().substring(1, emoticonsmatcher.group().length() - 1).replaceAll("\\d+.*", ""));
                         }
                     }
                     while (urlsmatcher.find()) {
